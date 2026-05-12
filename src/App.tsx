@@ -149,7 +149,7 @@ const App: React.FC = () => {
             <span>Secure. Browser-only calculations.</span>
           </div>
           <div className="footer-links">
-            <a href="https://github.com" target="_blank" rel="noreferrer" className="social-link">
+            <a href="https://github.com/prashantmiracle" target="_blank" rel="noreferrer" className="social-link">
               <Github size={20} />
             </a>
           </div>
