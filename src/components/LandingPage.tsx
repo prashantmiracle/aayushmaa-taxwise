@@ -123,22 +123,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onSampleReport }) =>
             <h2>Built for every Indian taxpayer</h2>
           </div>
           <div className="persona-grid">
-            <div className="persona-item">
+            <button className="persona-item" onClick={onStart}>
               <span>Salaried Employees</span>
               <ArrowUpRight size={16} />
-            </div>
-            <div className="persona-item">
+            </button>
+            <button className="persona-item" onClick={onStart}>
               <span>Freelancers</span>
               <ArrowUpRight size={16} />
-            </div>
-            <div className="persona-item">
+            </button>
+            <button className="persona-item" onClick={onStart}>
               <span>Small Business Owners</span>
               <ArrowUpRight size={16} />
-            </div>
-            <div className="persona-item">
+            </button>
+            <button className="persona-item" onClick={onStart}>
               <span>Senior Citizens</span>
               <ArrowUpRight size={16} />
-            </div>
+            </button>
           </div>
         </div>
       </section>
