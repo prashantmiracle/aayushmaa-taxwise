@@ -13,9 +13,10 @@ import MockResultCard from './MockResultCard';
 
 interface LandingPageProps {
   onStart: () => void;
+  onSampleReport: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onStart, onSampleReport }) => {
   return (
     <div className="landing-page">
       {/* Hero Section */}
@@ -34,7 +35,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               <button className="btn-primary btn-lg" onClick={onStart}>
                 Start Free Tax Check <ArrowRight size={20} />
               </button>
-              <button className="btn-secondary btn-lg">
+              <button className="btn-secondary btn-lg" onClick={onSampleReport}>
                 See sample report
               </button>
             </div>
