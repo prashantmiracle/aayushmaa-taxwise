@@ -10,7 +10,10 @@ const App: React.FC = () => {
   const [view, setView] = useState<AppView>('landing');
   const { resetInput } = useTax();
 
-  const startWizard = () => {
+  const handleHeaderAction = () => {
+    if (view === 'wizard') {
+      resetInput();
+    }
     setView('wizard');
     window.scrollTo(0, 0);
   };
@@ -37,7 +40,7 @@ const App: React.FC = () => {
                 <a href="#privacy">Privacy</a>
               </div>
             )}
-            <button className="btn-primary-sm" onClick={startWizard}>
+            <button className="btn-primary-sm" onClick={handleHeaderAction}>
               {view === 'landing' ? 'Get Started' : 'Reset Session'}
             </button>
           </nav>
@@ -47,7 +50,7 @@ const App: React.FC = () => {
       {/* Main Content */}
       <main className="main-content">
         {view === 'landing' ? (
-          <LandingPage onStart={startWizard} />
+          <LandingPage onStart={handleHeaderAction} />
         ) : (
           <Wizard onBackToHome={goToLanding} />
         )}

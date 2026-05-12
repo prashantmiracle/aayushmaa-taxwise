@@ -11,6 +11,7 @@ export interface CalculationResult {
   finalTax: number;
   deductions: {
     standard: number;
+    hra: number;
     other: number;
   };
   itrForm: 'ITR-1' | 'ITR-2' | 'ITR-3' | 'ITR-4';
@@ -58,14 +59,16 @@ export interface TaxComparison {
 }
 
 export const calculateRegimeTax = (
-  income: number,
+  grossIncome: number,
+  deductions: { hra: number; other: number },
   config: RegimeConfig,
   cessRate: number,
   isResident: boolean,
   input: TaxInput
 ): CalculationResult => {
-  const standardDeduction = config.standardDeduction;
-  const taxableIncome = Math.max(0, income - standardDeduction);
+  const standardDeduction = Math.min(grossIncome, config.standardDeduction);
+  const totalOtherDeductions = deductions.hra + deductions.other;
+  const taxableIncome = Math.max(0, grossIncome - totalOtherDeductions - standardDeduction);
   const { form, isComplex } = getITRForm(input);
   
   let remainingIncome = taxableIncome;
@@ -103,7 +106,7 @@ export const calculateRegimeTax = (
   const finalTax = taxAfterRebate + cess;
 
   return {
-    grossIncome: income,
+    grossIncome: grossIncome,
     taxableIncome,
     taxBeforeRebate,
     rebate,
@@ -112,7 +115,8 @@ export const calculateRegimeTax = (
     finalTax: Math.round(finalTax) || 0,
     deductions: {
       standard: standardDeduction,
-      other: input.taxpayerType === 'salaried' ? (input.annualGross || 0) - income : 0 // Rough estimate of other deductions
+      hra: deductions.hra,
+      other: deductions.other
     },
     itrForm: form,
     isComplex,
@@ -172,9 +176,18 @@ export const calculateTaxComparison = (
   }
 
   // 2. HRA Exemption (Old Regime Only)
+  // Estimate basic and HRA if not provided for salaried employees
+  let effectiveMonthlyBasic = input.basicSalary || 0;
+  let effectiveMonthlyHRA = input.hraReceived || 0;
+
+  if (input.taxpayerType === 'salaried' && grossIncome > 0) {
+    if (!effectiveMonthlyBasic) effectiveMonthlyBasic = (grossIncome * 0.5) / 12;
+    if (!effectiveMonthlyHRA) effectiveMonthlyHRA = effectiveMonthlyBasic * 0.4;
+  }
+
   const hraExemption = calculateHRAExemption(
-    input.basicSalary || 0,
-    input.hraReceived || 0,
+    effectiveMonthlyBasic,
+    effectiveMonthlyHRA,
     input.monthlyRent || 0,
     input.cityType
   );
@@ -182,15 +195,12 @@ export const calculateTaxComparison = (
   // 3. Apply Old Regime Deductions
   const capped80C = Math.min(150000, input.deduction80C);
   
-  const totalOldDeductions = 
-    hraExemption +
+  const otherInvestments = 
     capped80C + 
     input.deduction80D + 
     input.deductionNPS + 
     input.homeLoanInterest + 
     input.savingsInterest;
-
-  const oldIncomeAfterDeductions = Math.max(0, grossIncome - totalOldDeductions);
 
   // 4. Determine Old Regime Config based on Age
   let oldConfig = config.oldRegime.below60;
@@ -198,15 +208,16 @@ export const calculateTaxComparison = (
   if (input.ageCategory === 'superSenior80plus') oldConfig = config.oldRegime.superSenior80plus;
 
   // 5. Calculate Both
-  const oldRegime = calculateRegimeTax(oldIncomeAfterDeductions, oldConfig, config.cessRate, input.isResident, input);
-  const newRegime = calculateRegimeTax(grossIncome, config.newRegime, config.cessRate, input.isResident, input);
+  const oldRegime = calculateRegimeTax(grossIncome, { hra: hraExemption, other: otherInvestments }, oldConfig, config.cessRate, input.isResident, input);
+  const newRegime = calculateRegimeTax(grossIncome, { hra: 0, other: 0 }, config.newRegime, config.cessRate, input.isResident, input);
 
   const recommendation = newRegime.finalTax <= oldRegime.finalTax ? 'new' : 'old';
   const savings = Math.abs(oldRegime.finalTax - newRegime.finalTax);
 
   // 6. Calculate Previous Year (2024-25) for comparison
-  const prevOld = calculateRegimeTax(oldIncomeAfterDeductions, TAX_CONFIG_2024_25.oldRegime[input.ageCategory === 'below60' ? 'below60' : input.ageCategory === 'senior60to79' ? 'senior60to79' : 'superSenior80plus'], 0.04, input.isResident, input);
-  const prevNew = calculateRegimeTax(grossIncome, TAX_CONFIG_2024_25.newRegime, 0.04, input.isResident, input);
+  const prevAgeKey = input.ageCategory === 'below60' ? 'below60' : input.ageCategory === 'senior60to79' ? 'senior60to79' : 'superSenior80plus';
+  const prevOld = calculateRegimeTax(grossIncome, { hra: hraExemption, other: otherInvestments }, TAX_CONFIG_2024_25.oldRegime[prevAgeKey], 0.04, input.isResident, input);
+  const prevNew = calculateRegimeTax(grossIncome, { hra: 0, other: 0 }, TAX_CONFIG_2024_25.newRegime, 0.04, input.isResident, input);
   const prevYearBestTax = Math.min(prevOld.finalTax, prevNew.finalTax);
 
   return {

@@ -27,10 +27,13 @@ const Wizard: React.FC<WizardProps> = ({ onBackToHome }) => {
   if (showResult) {
     return (
       <div className="container" style={{ paddingTop: 'var(--space-xl)' }}>
-        <FinalResult onBack={() => {
-          setShowResult(false);
-          resetInput();
-        }} />
+        <FinalResult 
+          onBack={() => setShowResult(false)} 
+          onReset={() => {
+            resetInput();
+            setShowResult(false);
+          }}
+        />
       </div>
     );
   }

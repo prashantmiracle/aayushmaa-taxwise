@@ -105,6 +105,45 @@ const Step4RentHRA: React.FC = () => {
               </button>
             </div>
           </div>
+
+          <div className="advanced-section">
+            <details className="soft-card">
+              <summary>Help us be more accurate (Basic & HRA)</summary>
+              <div className="advanced-fields">
+                <div className="form-group">
+                  <label className="field-label">Monthly Basic Salary</label>
+                  <div className="premium-input-box small">
+                    <span className="unit">₹</span>
+                    <input 
+                      type="text"
+                      value={formatCurrency(input.basicSalary)}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '');
+                        updateInput({ basicSalary: val ? parseInt(val) : 0 });
+                      }}
+                      placeholder="Optional"
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="field-label">Monthly HRA Component</label>
+                  <div className="premium-input-box small">
+                    <span className="unit">₹</span>
+                    <input 
+                      type="text"
+                      value={formatCurrency(input.hraReceived)}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '');
+                        updateInput({ hraReceived: val ? parseInt(val) : 0 });
+                      }}
+                      placeholder="Optional"
+                    />
+                  </div>
+                </div>
+                <p className="advanced-hint">If left blank, we'll estimate these based on your gross income.</p>
+              </div>
+            </details>
+          </div>
         </div>
       )}
 
@@ -224,6 +263,53 @@ const Step4RentHRA: React.FC = () => {
           font-size: 0.8rem;
           color: var(--text-soft);
           margin-top: 8px;
+        }
+
+        .advanced-section {
+          margin-top: var(--space-md);
+        }
+
+        .advanced-section details {
+          padding: var(--space-md);
+          background: #f8fafc;
+          border: 1px dashed var(--border-strong);
+        }
+
+        .advanced-section summary {
+          font-weight: 700;
+          font-size: 0.85rem;
+          color: var(--primary);
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .advanced-fields {
+          margin-top: var(--space-md);
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-md);
+        }
+
+        .field-label {
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: var(--text-muted);
+          margin-bottom: 6px;
+          display: block;
+        }
+
+        .premium-input-box.small {
+          padding: 8px 12px;
+        }
+
+        .premium-input-box.small input {
+          font-size: 1rem;
+        }
+
+        .advanced-hint {
+          font-size: 0.75rem;
+          color: var(--text-soft);
+          font-style: italic;
         }
 
         @keyframes fadeIn {

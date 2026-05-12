@@ -7,10 +7,11 @@ import html2canvas from 'html2canvas';
 
 interface FinalResultProps {
   onBack: () => void;
+  onReset: () => void;
 }
 
-const FinalResult: React.FC<FinalResultProps> = ({ onBack }) => {
-  const { results, resetInput } = useTax();
+const FinalResult: React.FC<FinalResultProps> = ({ onBack, onReset }) => {
+  const { results } = useTax();
   const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ const FinalResult: React.FC<FinalResultProps> = ({ onBack }) => {
         <AlertTriangle size={48} className="color-red" />
         <h2>Calculation Error</h2>
         <p>We couldn't generate your report. Please try resetting the calculator.</p>
-        <button className="btn-primary" onClick={resetInput}>Reset Calculator</button>
+        <button className="btn-primary" onClick={onReset}>Reset Calculator</button>
       </div>
     );
   }
@@ -120,7 +121,12 @@ const FinalResult: React.FC<FinalResultProps> = ({ onBack }) => {
                   <span className="minus">-₹{results.newRegime.deductions?.standard.toLocaleString() || '0'}</span>
                 </div>
                 <div className="table-row">
-                  <span>Investments (80C/D/HRA)</span>
+                  <span>HRA Exemption (Rent)</span>
+                  <span className="minus">-₹{results.oldRegime.deductions?.hra.toLocaleString() || '0'}</span>
+                  <span className="val">₹0</span>
+                </div>
+                <div className="table-row">
+                  <span>Other Deductions (80C/D/etc)</span>
                   <span className="minus">-₹{results.oldRegime.deductions?.other.toLocaleString() || '0'}</span>
                   <span className="val">₹0</span>
                 </div>
@@ -154,7 +160,7 @@ const FinalResult: React.FC<FinalResultProps> = ({ onBack }) => {
         </div>
 
         <div className="report-bottom-actions">
-          <button className="btn-primary btn-xl w-full" onClick={resetInput}>
+          <button className="btn-primary btn-xl w-full" onClick={onReset}>
             Start New Calculation
           </button>
         </div>
