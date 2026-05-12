@@ -589,7 +589,7 @@ Ask before result:
 4. Did you hold unlisted equity shares?
 5. Is your total income above ₹50 lakh?
 6. Do you have business/professional books requiring audit?
-
+5CE2-E262
 If yes to complex items, show:
 
 > Your case may need ITR-2/ITR-3 and professional review. This app can still show a basic salary/business estimate, but final tax may differ.
